@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 const app = express();
 const port = 3000;
 const API_ENDPOINT = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=';
-
+const apiKey = '***'
 
 app.get('/status', async (req, res) => {
     res.status(200).send('healthy');
