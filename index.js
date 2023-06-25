@@ -1,13 +1,49 @@
-const express = require('express'); //Import the express dependency
-const app = express();              //Instantiate an express app, the main work horse of this server
-const port = 5000;                  //Save the port number where your server will be listening
+import express from 'express';
+import * as dotenv from "dotenv";
 
-//Idiomatic expression in express to route and respond to a client request
-app.get('/', (req, res) => {        //get requests to the root ("/") will route here
-    res.sendFile('index.html', {root: __dirname});      //server responds by sending the index.html file to the client's browser
-                                                        //the .sendFile method needs the absolute path to the file, see: https://expressjs.com/en/4x/api.html#res.sendFile 
+const app = express();
+const port = 3000;
+const API_ENDPOINT = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=';
+
+
+app.get('/status', async (req, res) => {
+    res.status(200).send('healthy');
 });
 
-app.listen(port, () => {            //server starts listening for any attempts from a client to connect at port: {port}
-    console.log(`Now listening on port ${port}`); 
+app.get('/gas', async (req, res) => {
+    const res = await axios.get(API_ENDPOINT + apiKey);
+    if (res == null) {
+        res.status(404).json({error: true, message: "Failed to retrieve gas price"});
+    } else {
+        gasPriceInfo = res.data.result
+        res.status(200).json({
+            error: false,
+            message: { ...gasPriceInfo }
+        });
+    }
+});
+
+app.get('/average', async (req, res) => {
+    const response = await axios.get(API_ENDPOINT + apiKey);
+    if (response == null) {
+        res.status(404).json({ error: true, message: "Failed to retrieve gas price" });
+    } else {
+        const gasPriceInfo = response.data.result;
+        const { high, low } = gasPriceInfo;
+
+        // Calculate the average gas price
+        const average = (high + low) / 2;
+
+        res.status(200).json({
+            error: false,
+            message: {
+                average
+            }
+        });
+    }
+});
+
+app.listen(port, async () => {
+    dotenv.config();
+    return console.log(`Listening at: http://localhost:${port}`);
 });
